@@ -37,7 +37,8 @@ email     ${profile.email}
 phone     ${profile.phone}
 github    ${profile.github}
 linkedin  ${profile.linkedin}
-resume    ${profile.resume}
+resume    ${profile.resumeEn}  (english)
+resume-fr ${profile.resumeFr}  (français)
 `;
 
 const expFiles: Record<string, FsNode> = {};

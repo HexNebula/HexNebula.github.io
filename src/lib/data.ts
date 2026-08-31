@@ -12,7 +12,8 @@ export const profile = {
   github: 'https://github.com/HexNebula',
   githubHandle: 'HexNebula',
   linkedin: 'https://www.linkedin.com/in/anas-madani-3b8937246/',
-  resume: '/resume.pdf',
+  resumeEn: '/resume-en.pdf',
+  resumeFr: '/resume-fr.pdf',
 };
 
 export interface Experience {

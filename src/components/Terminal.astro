@@ -36,6 +36,8 @@
   <button class="chip" data-cmd="neofetch">neofetch</button>
   <button class="chip" data-cmd="cmatrix">cmatrix</button>
   <button class="chip" data-cmd="git log --career">git log --career</button>
+  <button class="chip" data-cmd="resume en">resume en</button>
+  <button class="chip" data-cmd="resume fr">resume fr</button>
   <button class="chip" data-cmd="./contact.sh">./contact.sh</button>
   <button class="chip" data-cmd="help">help</button>
 </div>
@@ -319,7 +321,7 @@
       ['cowsay / fortune', 'wisdom delivery systems'],
       ['theme <name>', 'gruvbox · catppuccin · tokyonight · nord'],
       ['./contact.sh', 'how to reach me'],
-      ['resume', 'open resume.pdf'],
+      ['resume en|fr', 'open resume — english or français'],
       ['clear', 'wipe the screen'],
     ];
     print(
@@ -361,10 +363,14 @@
       case 'theme': themeCmd(args[0]); break;
       case 'contact':
       case './contact.sh': catCmd('~/contact.sh'); break;
-      case 'resume':
-        printText('opening resume.pdf ...');
-        window.open('/resume.pdf', '_blank');
+      case 'resume': {
+        const lang = arg === 'fr' ? 'fr' : arg === 'en' ? 'en' : arg ? null : 'en';
+        if (!lang) { printText(`resume: unknown language '${arg}'. try: resume en | resume fr`, 'err'); break; }
+        const url = lang === 'fr' ? profile.resumeFr : profile.resumeEn;
+        printText(`opening resume (${lang}) ...`);
+        window.open(url, '_blank');
         break;
+      }
       case 'clear': output.innerHTML = ''; break;
       case 'echo': printText(arg); break;
       case 'uptime': printText(uptimeStr() + ' · load average: employable, motivated, caffeinated'); break;

@@ -1,0 +1,229 @@
+%-------------------------
+% CV Anas MADANI — source unique, deux sorties (avec / sans photo)
+%-------------------------
+
+\documentclass[letterpaper,11pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ragged2e}
+\usepackage{tikz}
+\usepackage{tikzfill}
+
+% --- Liens sans cadre + metadonnees PDF (lues par certains ATS) ---
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={CV - Anas MADANI},
+  pdfauthor={Anas MADANI},
+  pdfsubject={Ingénieur Logiciel Full Stack},
+  pdfkeywords={Java, Spring Boot, Python, FastAPI, Django, React, Docker, Kafka, PostgreSQL, Kubernetes}
+}
+
+% --- Drapeaux de compilation -------------------------------------
+\newif\ifphoto
+\phototrue          % <- avec photo  (Maroc)
+%\photofalse        % <- sans photo  (France, remote, anglophone)
+
+\newif\ifshowstageonea
+\showstageoneatrue  % <- \showstageoneafalse pour masquer le stage 1A
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- Marges ------------------------------------------------------
+\addtolength{\oddsidemargin}{-0.375in}
+\addtolength{\evensidemargin}{-0.375in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% --- Titres de section -------------------------------------------
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% --- Commandes personnalisees ------------------------------------
+\newcommand{\resumeItem}[2]{
+  \item\small{
+    \textbf{#1}{: #2 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+% --- Contenu de l'en-tete, defini une seule fois ------------------
+\newcommand{\cvname}{Anas MADANI}
+\newcommand{\cvtitle}{Ingénieur Logiciel Full Stack}
+\newcommand{\cvcontact}{
+  \href{mailto:anasmadani49@gmail.com}{anasmadani49@gmail.com}
+  \quad | \quad
+  \href{tel:+212666322450}{+212 6 66 32 24 50}
+  \quad | \quad
+  Casablanca, Maroc \\[4pt]
+  \href{https://www.linkedin.com/in/anas-madani-3b8937246/}{linkedin.com/in/anas-madani}
+  \quad | \quad
+  \href{https://github.com/HexNebula}{github.com/HexNebula}
+}
+
+%-------------------------------------------
+\begin{document}
+
+% --- En-tete -----------------------------------------------------
+\ifphoto
+  \begin{minipage}[c]{0.75\textwidth}
+    \textbf{\Large \cvname} \\[2pt]
+    \textit{\cvtitle} \\[6pt]
+    \cvcontact
+  \end{minipage}
+  \hfill
+  \begin{minipage}[c]{0.20\textwidth}
+    \raggedleft
+    \tikz\path[fill overzoom image={CV_light}]circle[radius=1.5cm];
+  \end{minipage}
+  \vspace{6pt}
+\else
+  \begin{center}
+    \textbf{\Large \cvname} \\[2pt]
+    \textit{\cvtitle} \\[6pt]
+    \cvcontact
+  \end{center}
+  \vspace{4pt}
+\fi
+
+\section{Profil}
+\small{
+Ingénieur logiciel diplômé de l'ENSIAS (Génie Logiciel), full stack du backend au frontend, avec une pratique DevOps du déploiement en environnement Linux : intégration et livraison continues, conteneurisation et orchestration. Expérience en environnements exigeants (banque, datacenter), habitué à livrer en équipe agile un code testé, revu et documenté.
+}
+
+%-----------FORMATION-----------------
+\section{Formation}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {École Nationale Supérieure d'Informatique et d'Analyse des Systèmes (ENSIAS)}{Rabat, Maroc}
+      {Diplôme d'Ingénieur -- Génie Logiciel}{2022 -- 2025}
+    \resumeSubheading
+      {CPGE -- Settat}{Settat, Maroc}
+      {Classe Préparatoire aux Grandes Écoles, TSI}{2019 -- 2022}
+  \resumeSubHeadingListEnd
+
+%-----------EXPERIENCE-----------------
+\section{Expériences Professionnelles}
+\resumeSubHeadingListStart
+
+\resumeSubheading
+  {Banque Centrale Populaire (BCP)}{Casablanca, Maroc}
+  {Stagiaire Ingénieur Logiciel (PFE)}{Février 2025 -- Juillet 2025}
+  \resumeItemListStart
+    \item Conception et livraison en autonomie d'une plateforme de recommandation de produits
+      bancaires : 8 microservices Spring Boot, une API de recommandation FastAPI et un
+      frontend React/TypeScript, déployée en interne et présentée aux équipes métier.
+    \item Développement du moteur de recommandation de bout en bout : préparation de 17 000
+      paires client-produit, segmentation de clientèle par K-Means, comparaison de 4
+      algorithmes de classification et d'un filtrage collaboratif par graphe (Neo4j GDS),
+      avec un framework d'évaluation Precision@K / Recall@K / NDCG@K.
+    \item Industrialisation de la plateforme : conteneurisation Docker, communication
+      événementielle par Kafka, cache Redis, authentification Keycloak avec validation JWT
+      centralisée au niveau de l'API Gateway.
+    \item \textit{Stack :} Java, Spring Boot/Cloud, React, TypeScript, Python, FastAPI, Neo4j,
+      PostgreSQL, Redis, Kafka, Keycloak, Docker, Git
+  \resumeItemListEnd
+
+\resumeSubheading
+  {N+ONE DATACENTERS}{Casablanca, Maroc}
+  {Stagiaire Ingénieur Logiciel}{Août 2024 -- Septembre 2024}
+  \resumeItemListStart
+    \item Développement d'une plateforme de gestion d'appels d'offres (Django REST Framework /
+      React), couvrant le cycle de vie des consultations, les soumissions des candidats et un
+      portail public pour les entreprises externes.
+    \item Implémentation des mécanismes de sécurité : chiffrement AES-256-GCM des documents
+      sensibles, contrôle d'accès par rôles, authentification JWT avec rotation des tokens,
+      journal d'audit des opérations et limitation de débit sur les endpoints publics.
+    \item Conteneurisation de la stack via Docker Compose (Django, PostgreSQL, React, reverse
+      proxy Nginx), pipeline d'intégration continue GitHub Actions (flake8, pytest sur
+      PostgreSQL) et service planifié de surveillance des échéances.
+    \item \textit{Stack :} Python, Django REST Framework, React, Vite, PostgreSQL, Docker,
+      Nginx, GitHub Actions, JWT, AES-GCM, pytest
+  \resumeItemListEnd
+
+\ifshowstageonea
+\resumeSubheading
+  {Commune Er-rich}{Er-rich, Maroc}
+  {Stagiaire Ingénieur Logiciel}{Juillet 2023 -- Août 2023}
+  \resumeItemListStart
+    \item Développement en autonomie d'une application de bureau Java/JavaFX pour la gestion du
+      personnel ouvrier de la commune : gestion des profils, suivi des absences et calcul
+      automatisé des salaires.
+    \item Conception de la base de données relationnelle (MySQL/MariaDB) : dictionnaire de
+      données, dépendances fonctionnelles et modèle conceptuel, à partir du recueil des
+      besoins auprès du service concerné.
+    \item \textit{Stack :} Java, JavaFX, MySQL/MariaDB, phpMyAdmin, NetBeans, UML, Git
+  \resumeItemListEnd
+\fi
+
+\resumeSubHeadingListEnd
+
+%-----------PROJETS-----------------
+\section{Projets}
+  \resumeSubHeadingListStart
+    \resumeSubItem{BusConnect}
+      {Plateforme de réservation de bus en architecture microservices avec Spring Boot 3, Spring Cloud (Eureka, API Gateway), React 18 et déploiement Kubernetes. Intègre PostgreSQL, MySQL et MongoDB selon les services.
+      \href{https://github.com/HexNebula/BusManagementV2}{\underline{GitHub}}}
+      \vspace{2pt}
+    \resumeSubItem{MLOps Pipeline Generator}
+      {Générateur de code MLOps basé sur l'ingénierie dirigée par les modèles (MDE) avec Eclipse Ecore et Acceleo. Génère automatiquement des scripts Python, Dockerfiles et configurations Kubernetes à partir de métamodèles via une interface SWT/EMF Forms.
+      \href{https://github.com/HexNebula/MLOps-Pipeline-Code-Generator}{\underline{GitHub}}}
+      \vspace{2pt}
+    \resumeSubItem{BacSurveillance}
+      {Plateforme de gestion de surveillance d'examens avec algorithme greedy + backtracking pour l'affectation automatique des enseignants. Backend FastAPI/PostgreSQL, frontend React 19 (TypeScript), export Word/Excel et interface bilingue Arabe/Français.
+      \href{https://github.com/HexNebula/BacSurveillance}{\underline{GitHub}}}
+      \vspace{2pt}
+    \resumeSubItem{FitHub}
+      {Application full stack de gestion de salle de sport en architecture microservices avec pipelines CI/CD via GitHub Actions.
+      \href{https://github.com/HexNebula/fitnesshub-backend}{\underline{GitHub}}}
+  \resumeSubHeadingListEnd
+
+%-----------COMPETENCES-----------------
+\section{Compétences}
+  \resumeSubHeadingListStart
+    \item{
+      \textbf{Langages}{: Java, Python, TypeScript, JavaScript, C, C++, SQL} \\
+      \textbf{Backend}{: Spring Boot, Spring Cloud, FastAPI, Django REST Framework} \\
+      \textbf{Frontend}{: React, TypeScript, Tailwind CSS, Vite} \\
+      \textbf{Bases de données}{: PostgreSQL, MySQL, MongoDB, Neo4j, Redis} \\
+      \textbf{DevOps \& Infra}{: Docker, Kubernetes, Kafka, GitHub Actions, Nginx, Keycloak, Linux} \\
+      \textbf{Langues}{: Arabe (natif), Français (courant), Anglais (courant)}
+    }
+  \resumeSubHeadingListEnd
+
+\end{document}
