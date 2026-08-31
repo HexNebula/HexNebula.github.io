@@ -1,0 +1,215 @@
+---
+import Terminal from '../components/Terminal.astro';
+import { profile, experience, projects, skills, education } from '../lib/data';
+import '../styles/global.css';
+
+const title = `${profile.name} — ${profile.role}`;
+const description = `${profile.role} in ${profile.location}. Microservices, Spring Boot, React, Docker, Kafka, CI/CD. ENSIAS 2025.`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      // restore theme before first paint — avoids flash
+      document.documentElement.classList.add('js');
+      const t = localStorage.getItem('theme');
+      if (t && t !== 'gruvbox') document.documentElement.dataset.theme = t;
+    </script>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="#top">anas@arch:~$</a>
+        <a class="nav-link" href="#experience">experience</a>
+        <a class="nav-link" href="#projects">projects</a>
+        <a class="nav-link" href="#skills">skills</a>
+        <a class="nav-link" href="#contact">contact</a>
+      </div>
+    </nav>
+
+    <main class="container" id="top">
+      <div class="hero">
+        <header class="hero-head">
+          <h1 class="hero-name">{profile.name}<span class="cursor" aria-hidden="true">▊</span></h1>
+          <p class="hero-role">{profile.role} · Casablanca <span class="hero-badge">open to work</span></p>
+        </header>
+        <Terminal />
+      </div>
+
+      <section id="about" class="reveal">
+        <h2 class="section-title" data-cmd="cat about.md"><span class="path">cat</span> about.md</h2>
+        <p class="intro"><strong>{profile.name}</strong> — {profile.role}, {profile.location}.</p>
+        <p class="intro">{profile.tagline}</p>
+        <p class="intro">{profile.bio}</p>
+      </section>
+
+      <section id="experience" class="reveal">
+        <h2 class="section-title" data-cmd="ls ~/experience"><span class="path">ls</span> ~/experience</h2>
+        {experience.map((e) => (
+          <article class="xp">
+            <div class="xp-head">
+              <h3 class="xp-company">{e.company}</h3>
+              <span class="xp-period">{e.period}</span>
+            </div>
+            <p class="xp-role">{e.role} · {e.location}</p>
+            <ul>
+              {e.points.map((p) => <li>{p}</li>)}
+            </ul>
+            <div class="tags">
+              {e.stack.map((s) => <span class="tag">{s}</span>)}
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section id="projects" class="reveal">
+        <h2 class="section-title" data-cmd="ls ~/projects"><span class="path">ls</span> ~/projects</h2>
+        <div class="grid">
+          {projects.map((p) => (
+            <article class="card">
+              <div class="card-head">
+                <h3 class="card-name">{p.name}</h3>
+                <a class="card-repo" href={p.repo} target="_blank" rel="noopener">[github]</a>
+              </div>
+              <p class="card-desc">{p.description}</p>
+              <div class="tags">
+                {p.stack.map((s) => <span class="tag">{s}</span>)}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="skills" class="reveal">
+        <h2 class="section-title" data-cmd="cat skills.md"><span class="path">cat</span> skills.md</h2>
+        <div class="skills-grid">
+          {Object.entries(skills).map(([group, items]) => (
+            <div class="skill-group">
+              <h3 class="skill-key"><span class="skill-hash">#</span> {group}</h3>
+              <div class="tags">
+                {items.map((s) => <span class="tag">{s}</span>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="education" class="reveal">
+        <h2 class="section-title" data-cmd="cat education.md"><span class="path">cat</span> education.md</h2>
+        {education.map((e) => (
+          <article class="xp">
+            <div class="xp-head">
+              <h3 class="xp-company">{e.school}</h3>
+              <span class="xp-period">{e.period}</span>
+            </div>
+            <p class="xp-role">{e.degree} · {e.location}</p>
+          </article>
+        ))}
+      </section>
+
+      <section id="contact" class="reveal">
+        <h2 class="section-title" data-cmd="./contact.sh"><span class="path">./</span>contact.sh</h2>
+        <ul class="contact-list">
+          <li><span class="key">email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+          <li><span class="key">github</span><a href={profile.github} target="_blank" rel="noopener">github.com/{profile.githubHandle}</a></li>
+          <li><span class="key">linkedin</span><a href={profile.linkedin} target="_blank" rel="noopener">linkedin.com/in/anas-madani</a></li>
+          <li><span class="key">resume</span><a href={profile.resume} target="_blank">resume.pdf</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <script>
+      // ── page choreography: reveals, typed headings, scrollspy ──
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // section reveal + typed headings
+      const typed = new WeakSet<Element>();
+      function typeHeading(h: HTMLElement) {
+        if (typed.has(h) || reduced) return;
+        typed.add(h);
+        const finalHtml = h.innerHTML;
+        const text = h.dataset.cmd ?? h.textContent ?? '';
+        h.classList.add('typing');
+        h.textContent = '';
+        let i = 0;
+        const timer = setInterval(() => {
+          i++;
+          h.textContent = text.slice(0, i);
+          if (i >= text.length) {
+            clearInterval(timer);
+            h.innerHTML = finalHtml;
+            h.classList.remove('typing');
+          }
+        }, 34);
+      }
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.classList.add('in');
+            const h = e.target.querySelector<HTMLElement>('.section-title');
+            if (h) typeHeading(h);
+            io.unobserve(e.target);
+          }
+        },
+        { threshold: 0.15 },
+      );
+      document.querySelectorAll('.reveal').forEach((s) => io.observe(s));
+      if (reduced) document.querySelectorAll('.reveal').forEach((s) => s.classList.add('in'));
+
+      // staggered children (cards, rows)
+      const stagger = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.querySelectorAll<HTMLElement>('.card, .xp, .skill-group').forEach((el, i) => {
+              el.style.transitionDelay = `${Math.min(i * 70, 500)}ms`;
+              el.classList.add('in');
+            });
+            stagger.unobserve(e.target);
+          }
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll('.reveal').forEach((s) => stagger.observe(s));
+
+      // scrollspy — highlight nav link of current section
+      const links = new Map(
+        [...document.querySelectorAll<HTMLAnchorElement>('.nav-link')].map((a) => [
+          a.getAttribute('href')!.slice(1),
+          a,
+        ]),
+      );
+      const spy = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            const link = links.get(e.target.id);
+            if (!link) continue;
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove('active'));
+              link.classList.add('active');
+            }
+          }
+        },
+        { rootMargin: '-30% 0px -60% 0px' },
+      );
+      document.querySelectorAll('section[id]').forEach((s) => spy.observe(s));
+    </script>
+
+    <footer>
+      <div class="container">
+        built with astro · themed gruvbox · no trackers, no cookies, just vibes — <a href={profile.github} target="_blank" rel="noopener">source on github</a>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,509 @@
+---
+// Interactive zsh-style terminal — the hero. Vanilla TS, no framework.
+---
+
+<div class="term-window crt" id="terminal">
+  <div class="term-bar">
+    <span class="dot dot-red"></span>
+    <span class="dot dot-yellow"></span>
+    <span class="dot dot-green"></span>
+    <span class="term-title">anas@arch: ~</span>
+  </div>
+  <div class="term-body" id="term-body">
+    <div id="term-output" role="log" aria-live="polite" aria-label="Terminal output"></div>
+    <div class="term-input-line" id="term-input-line" hidden>
+      <span class="prompt" id="term-prompt"><span class="p-user">anas@arch</span> <span class="p-cwd">~</span> <span class="p-sym">%</span></span>
+      <input
+        id="term-input"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        aria-label="Terminal command input"
+      />
+    </div>
+  </div>
+  <div class="tmux-bar">
+    <span class="tmux-left"><span class="tmux-session">[portfolio]</span> 0:zsh*</span>
+    <span class="tmux-right"><span id="tmux-uptime">up 0m</span> │ <span id="tmux-clock">--:--</span></span>
+  </div>
+</div>
+<div class="term-chips" aria-label="Suggested commands">
+  <button class="chip" data-cmd="whoami">whoami</button>
+  <button class="chip" data-cmd="ls projects">ls projects</button>
+  <button class="chip" data-cmd="cat about.md">cat about.md</button>
+  <button class="chip" data-cmd="neofetch">neofetch</button>
+  <button class="chip" data-cmd="cmatrix">cmatrix</button>
+  <button class="chip" data-cmd="git log --career">git log --career</button>
+  <button class="chip" data-cmd="./contact.sh">./contact.sh</button>
+  <button class="chip" data-cmd="help">help</button>
+</div>
+
+<script>
+  import { root, NEOFETCH_INFO, type FsNode } from '../lib/vfs';
+  import { profile, experience, education, skills } from '../lib/data';
+
+  const output = document.getElementById('term-output')!;
+  const input = document.getElementById('term-input') as HTMLInputElement;
+  const inputLine = document.getElementById('term-input-line')!;
+  const body = document.getElementById('term-body')!;
+  const promptEl = document.getElementById('term-prompt')!;
+
+  let cwd: string[] = [];
+  const history: string[] = [];
+  let histIdx = -1;
+  let stopProgram: (() => void) | null = null; // active fullscreen program (cmatrix)
+
+  const THEMES = ['gruvbox', 'catppuccin', 'tokyonight', 'nord'];
+  const COMMANDS = [
+    'help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'tree', 'neofetch', 'htop',
+    'cmatrix', 'cowsay', 'fortune', 'git', 'theme', 'contact', 'resume',
+    'clear', 'echo', 'uptime', 'sudo', 'exit',
+  ];
+
+  // ---------- vfs helpers ----------
+  function nodeAt(path: string[]): FsNode | null {
+    let node: FsNode = root;
+    for (const seg of path) {
+      if (!node.dir || !(seg in node.children)) return null;
+      node = node.children[seg];
+    }
+    return node;
+  }
+
+  function resolve(arg: string): { path: string[]; node: FsNode | null } {
+    let segs: string[];
+    if (arg.startsWith('~')) segs = arg.slice(1).split('/').filter(Boolean);
+    else if (arg.startsWith('/')) segs = arg.split('/').filter(Boolean);
+    else segs = [...cwd, ...arg.split('/').filter((s) => s !== '' && s !== '.')];
+    const norm: string[] = [];
+    for (const s of segs) {
+      if (s === '..') norm.pop();
+      else if (s !== '.') norm.push(s);
+    }
+    return { path: norm, node: nodeAt(norm) };
+  }
+
+  const cwdStr = () => '~' + (cwd.length ? '/' + cwd.join('/') : '');
+
+  // ---------- rendering ----------
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const linkify = (escaped: string) =>
+    escaped
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+      .replace(/([\w.+-]+@[\w-]+\.[\w.]+)/g, '<a href="mailto:$1">$1</a>');
+
+  function print(html: string, cls = ''): HTMLElement {
+    const div = document.createElement('div');
+    div.className = 'term-block' + (cls ? ' ' + cls : '');
+    div.innerHTML = html;
+    output.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  const printText = (text: string, cls = '') => print(linkify(esc(text)), cls);
+
+  const promptHtml = () =>
+    `<span class="p-user">anas@arch</span> <span class="p-cwd">${esc(cwdStr())}</span> <span class="p-sym">%</span>`;
+
+  const printPromptLine = (cmd: string) => print(`${promptHtml()} ${esc(cmd)}`, 'cmd-echo');
+  const updatePrompt = () => { promptEl.innerHTML = promptHtml(); };
+
+  // ---------- commands ----------
+  function lsCmd(arg?: string) {
+    const target = arg ? resolve(arg) : { path: cwd, node: nodeAt(cwd) };
+    if (!target.node) return printText(`ls: cannot access '${arg}': No such file or directory`, 'err');
+    if (!target.node.dir) return printText(arg ?? '');
+    const entries = Object.entries(target.node.children)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, n]) =>
+        n.dir ? `<span class="ls-dir">${esc(name)}/</span>` : `<span class="ls-file">${esc(name)}</span>`,
+      );
+    print(entries.join('  '));
+  }
+
+  function catCmd(arg?: string) {
+    if (!arg) return printText('usage: cat <file>', 'err');
+    const { node } = resolve(arg);
+    if (!node) return printText(`cat: ${arg}: No such file or directory`, 'err');
+    if (node.dir) return printText(`cat: ${arg}: Is a directory`, 'err');
+    printText(node.content);
+  }
+
+  function cdCmd(arg?: string) {
+    if (!arg || arg === '~') { cwd = []; updatePrompt(); return; }
+    const { path, node } = resolve(arg);
+    if (!node) return printText(`cd: no such file or directory: ${arg}`, 'err');
+    if (!node.dir) return printText(`cd: not a directory: ${arg}`, 'err');
+    cwd = path;
+    updatePrompt();
+  }
+
+  function treeCmd() {
+    const lines: string[] = ['<span class="ls-dir">~</span>'];
+    const walk = (node: FsNode, prefix: string) => {
+      if (!node.dir) return;
+      const entries = Object.entries(node.children).sort(([a], [b]) => a.localeCompare(b));
+      entries.forEach(([name, n], i) => {
+        const isLast = i === entries.length - 1;
+        const branch = isLast ? '└── ' : '├── ';
+        lines.push(
+          prefix + branch + (n.dir ? `<span class="ls-dir">${esc(name)}/</span>` : esc(name)),
+        );
+        if (n.dir) walk(n, prefix + (isLast ? '    ' : '│   '));
+      });
+    };
+    walk(root, '');
+    print(lines.join('\n'));
+  }
+
+  function neofetch() {
+    const art = [
+      '       /\\        ',
+      '      /  \\       ',
+      '     /\\   \\      ',
+      '    /  __  \\     ',
+      '   /  (  )  \\    ',
+      '  / __|  |__ \\   ',
+      ' /.`        `.\\  ',
+    ];
+    const rows = Math.max(art.length, NEOFETCH_INFO.length);
+    const lines: string[] = [];
+    for (let i = 0; i < rows; i++) {
+      const left = `<span class="p-cwd">${esc((art[i] ?? '').padEnd(18))}</span>`;
+      const info = NEOFETCH_INFO[i];
+      const right = info
+        ? `<span class="p-user">${esc(info[0].padEnd(11))}</span>${linkify(esc(info[1]))}`
+        : '';
+      lines.push(left + right);
+    }
+    print(lines.join('\n'));
+  }
+
+  function htop() {
+    const procs: [string, number, number][] = [];
+    let pid = 1;
+    for (const [group, items] of Object.entries(skills)) {
+      if (group === 'Spoken') continue;
+      for (const s of items) {
+        procs.push([s.toLowerCase().replace(/\s+/g, '-'), 55 + Math.random() * 44, 2 + Math.random() * 12]);
+        pid++;
+      }
+    }
+    procs.sort((a, b) => b[1] - a[1]);
+    const bar = (pct: number) => {
+      const n = Math.round((pct / 100) * 18);
+      return `<span class="p-user">${'|'.repeat(n)}</span><span class="dim">${'.'.repeat(18 - n)}</span>`;
+    };
+    const head = `<span class="htop-head">  PID USER      CPU%  MEM%  COMMAND${' '.repeat(12)}</span>`;
+    const lines = procs.slice(0, 14).map((p, i) => {
+      const [name, cpu, mem] = p;
+      return `${String(i + 1).padStart(5)} anas     ${cpu.toFixed(1).padStart(5)} ${mem.toFixed(1).padStart(5)}  ${name.padEnd(18)} ${bar(cpu)}`;
+    });
+    print(head + '\n' + lines.join('\n') + '\n<span class="dim">all processes healthy · load average: employable</span>');
+  }
+
+  function gitLog() {
+    const hash = () => Math.random().toString(16).slice(2, 9);
+    const entries = [
+      ...experience.map((e) => ({
+        date: e.period,
+        msg: `feat(${e.slug}): ${e.role.toLowerCase().includes('graduation') ? 'ship graduation project' : 'internship'} @ ${e.company}`,
+        body: e.points[0],
+      })),
+      ...education.map((e) => ({
+        date: e.period,
+        msg: `init(${e.school.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '')}): ${e.degree}`,
+        body: e.location,
+      })),
+    ];
+    const lines = entries.map((c, i) => {
+      const ref = i === 0 ? ` <span class="p-cwd">(HEAD -> career)</span>` : '';
+      return (
+        `<span class="p-yellow">commit ${hash()}${hash()}</span>${ref}\n` +
+        `Author: ${esc(profile.name)} &lt;<a href="mailto:${profile.email}">${profile.email}</a>&gt;\n` +
+        `Date:   ${esc(c.date)}\n\n    ${esc(c.msg)}\n    <span class="dim">${esc(c.body)}</span>\n`
+      );
+    });
+    print(lines.join('\n'));
+  }
+
+  function cowsay(msg: string) {
+    const text = msg || 'hire anas. moo.';
+    const w = text.length;
+    const cow = [
+      ' ' + '_'.repeat(w + 2),
+      `< ${text} >`,
+      ' ' + '-'.repeat(w + 2),
+      '        \\   ^__^',
+      '         \\  (oo)\\_______',
+      '            (__)\\       )\\/\\',
+      '                ||----w |',
+      '                ||     ||',
+    ];
+    printText(cow.join('\n'));
+  }
+
+  const FORTUNES = [
+    'It works on my machine — and my machine is Arch, btw.',
+    'There are two hard things in CS: cache invalidation, naming things, and off-by-one errors.',
+    'A microservice a day keeps the monolith away.',
+    'sudo make me a sandwich.',
+    'Weeks of coding can save you hours of planning.',
+    '99 little bugs in the code, 99 little bugs. Take one down, patch it around — 127 little bugs in the code.',
+    'Real engineers test in production. Wise ones have CI.',
+    'The best error message is the one that never shows up. The second best mentions Kafka.',
+  ];
+
+  function cmatrix() {
+    inputLine.setAttribute('hidden', '');
+    const block = print('', 'matrix');
+    const chars = 'アイウエオカキクケコサシスセソ0123456789ABCDEFZ$#*+';
+    const cols = Math.max(20, Math.floor(body.clientWidth / 10));
+    const rows = 15;
+    const grid: string[][] = Array.from({ length: rows }, () => Array(cols).fill(' '));
+    const drops = Array.from({ length: cols }, () => Math.floor(Math.random() * rows * -2));
+    const timer = setInterval(() => {
+      for (let c = 0; c < cols; c++) {
+        drops[c]++;
+        if (drops[c] >= rows + 6) drops[c] = Math.floor(Math.random() * -8);
+        for (let r = 0; r < rows; r++) {
+          if (r === drops[c]) grid[r][c] = chars[Math.floor(Math.random() * chars.length)];
+          else if (r < drops[c] && r > drops[c] - 7 && Math.random() < 0.3)
+            grid[r][c] = chars[Math.floor(Math.random() * chars.length)];
+          else if (r <= drops[c] - 7) grid[r][c] = ' ';
+        }
+      }
+      block.textContent = grid.map((r) => r.join('')).join('\n');
+      body.scrollTop = body.scrollHeight;
+    }, 90);
+    printText('-- press any key to exit --', 'dim-note');
+    stopProgram = () => {
+      clearInterval(timer);
+      printText('cmatrix: interrupted. back to reality.');
+      inputLine.removeAttribute('hidden');
+      input.focus();
+    };
+  }
+
+  function themeCmd(arg?: string) {
+    if (!arg) {
+      print(
+        `usage: theme &lt;name&gt;\navailable: ` +
+          THEMES.map((t) => `<span class="p-cwd">${t}</span>`).join(' · ') +
+          `\ncurrent: <span class="p-user">${document.documentElement.dataset.theme ?? 'gruvbox'}</span>`,
+      );
+      return;
+    }
+    if (!THEMES.includes(arg)) return printText(`theme: unknown theme '${arg}'. try: ${THEMES.join(', ')}`, 'err');
+    if (arg === 'gruvbox') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = arg;
+    localStorage.setItem('theme', arg);
+    printText(`theme set to ${arg}. nice taste.`);
+  }
+
+  function help() {
+    const rows: [string, string][] = [
+      ['whoami', 'who is this guy'],
+      ['ls / tree', 'explore files — try `ls projects`'],
+      ['cat <file>', 'read a file — try `cat about.md`'],
+      ['cd <dir>', 'change directory'],
+      ['neofetch', 'system (me) info'],
+      ['htop', 'my skills, as processes'],
+      ['git log --career', 'career as commit history'],
+      ['cmatrix', 'follow the white rabbit'],
+      ['cowsay / fortune', 'wisdom delivery systems'],
+      ['theme <name>', 'gruvbox · catppuccin · tokyonight · nord'],
+      ['./contact.sh', 'how to reach me'],
+      ['resume', 'open resume.pdf'],
+      ['clear', 'wipe the screen'],
+    ];
+    print(
+      rows.map(([c, d]) => `<span class="p-user">${c.padEnd(18)}</span>${esc(d)}`).join('\n') +
+        '\n\n' + esc('tab = complete · ↑/↓ = history · ctrl+l = clear'),
+    );
+  }
+
+  function run(raw: string) {
+    if (stopProgram) return;
+    const line = raw.trim();
+    printPromptLine(line);
+    if (!line) return;
+    history.push(line);
+    histIdx = history.length;
+
+    const [cmd, ...args] = line.split(/\s+/);
+    const arg = args.join(' ');
+
+    switch (cmd) {
+      case 'help': help(); break;
+      case 'whoami':
+        printText('Anas Madani — Full-Stack Software Engineer (Casablanca, Morocco)\nDetails: cat about.md');
+        break;
+      case 'ls': lsCmd(args[0]); break;
+      case 'cat': catCmd(args[0]); break;
+      case 'cd': cdCmd(args[0]); break;
+      case 'pwd': printText('/home/anas' + (cwd.length ? '/' + cwd.join('/') : '')); break;
+      case 'tree': treeCmd(); break;
+      case 'neofetch': neofetch(); break;
+      case 'htop': htop(); break;
+      case 'cmatrix': cmatrix(); break;
+      case 'cowsay': cowsay(arg); break;
+      case 'fortune': printText(FORTUNES[Math.floor(Math.random() * FORTUNES.length)]); break;
+      case 'git':
+        if (arg.startsWith('log')) gitLog();
+        else printText(`git: try \`git log --career\` — everything else is on ${profile.github}`);
+        break;
+      case 'theme': themeCmd(args[0]); break;
+      case 'contact':
+      case './contact.sh': catCmd('~/contact.sh'); break;
+      case 'resume':
+        printText('opening resume.pdf ...');
+        window.open('/resume.pdf', '_blank');
+        break;
+      case 'clear': output.innerHTML = ''; break;
+      case 'echo': printText(arg); break;
+      case 'uptime': printText(uptimeStr() + ' · load average: employable, motivated, caffeinated'); break;
+      case 'sudo':
+        printText('[sudo] password for visitor: \nnice try. permission granted anyway — this portfolio has no secrets.\nrun `./contact.sh` to escalate to an interview.');
+        break;
+      case 'exit': printText('there is no escape. scroll down instead.'); break;
+      case 'vim': case 'nvim': case 'nano': case 'emacs':
+        printText(`${cmd}: this terminal is read-only. even ${cmd} can't save you here. :q!`);
+        break;
+      default:
+        printText(`zsh: command not found: ${cmd}\ntype \`help\` for available commands`, 'err');
+    }
+  }
+
+  // ---------- completion ----------
+  function complete() {
+    const raw = input.value;
+    const parts = raw.split(/\s+/);
+    const last = parts[parts.length - 1];
+    let candidates: string[] = [];
+
+    if (parts.length === 1) {
+      candidates = COMMANDS.filter((c) => c.startsWith(last));
+    } else if (parts[0] === 'theme') {
+      candidates = THEMES.filter((t) => t.startsWith(last));
+    } else {
+      const slash = last.lastIndexOf('/');
+      const dirPart = slash >= 0 ? last.slice(0, slash + 1) : '';
+      const base = slash >= 0 ? last.slice(slash + 1) : last;
+      const { node } = resolve(dirPart || '.');
+      if (node && node.dir) {
+        candidates = Object.entries(node.children)
+          .filter(([name]) => name.startsWith(base))
+          .map(([name, n]) => dirPart + name + (n.dir ? '/' : ''));
+      }
+    }
+
+    if (candidates.length === 1) {
+      parts[parts.length - 1] = candidates[0];
+      input.value = parts.join(' ') + (candidates[0].endsWith('/') ? '' : ' ');
+    } else if (candidates.length > 1) {
+      printPromptLine(raw);
+      print(candidates.map((c) => esc(c)).join('  '));
+    }
+  }
+
+  // ---------- events ----------
+  document.addEventListener('keydown', (e) => {
+    if (stopProgram) {
+      e.preventDefault();
+      stopProgram();
+      stopProgram = null;
+    }
+  }, true);
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { run(input.value); input.value = ''; }
+    else if (e.key === 'Tab') { e.preventDefault(); complete(); }
+    else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+      else { histIdx = history.length; input.value = ''; }
+    } else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); output.innerHTML = ''; }
+  });
+
+  document.getElementById('terminal')!.addEventListener('click', () => {
+    if (!window.getSelection()?.toString() && !stopProgram) input.focus();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.chip').forEach((btn) => {
+    btn.addEventListener('click', () => { run(btn.dataset.cmd!); input.focus(); });
+  });
+
+  // ---------- tmux status bar ----------
+  const bootTime = Date.now();
+  const uptimeStr = () => {
+    const m = Math.floor((Date.now() - bootTime) / 60000);
+    return `up ${m < 60 ? m + 'm' : Math.floor(m / 60) + 'h' + (m % 60) + 'm'}`;
+  };
+  const tick = () => {
+    document.getElementById('tmux-clock')!.textContent =
+      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('tmux-uptime')!.textContent = uptimeStr();
+  };
+  tick();
+  setInterval(tick, 10_000);
+
+  // ---------- boot sequence ----------
+  const BOOT_LINES: [string, number][] = [
+    [':: running early hook [udev]', 60],
+    [':: Triggering uevents...', 90],
+    ['[  OK  ] Mounted /home/anas/portfolio', 70],
+    ['[  OK  ] Started Network Manager', 60],
+    ['[  OK  ] Loaded theme: gruvbox-dark', 60],
+    ['[  OK  ] Started zsh 5.9 (interactive)', 70],
+    ['[  OK  ] Reached target Portfolio Shell', 90],
+    ['', 120],
+    ['Arch Linux 6.9.1-arch1-1 (tty1)', 100],
+  ];
+
+  function welcome() {
+    inputLine.removeAttribute('hidden');
+    print(
+      `Welcome to <span class="p-user">anas@arch</span> — portfolio shell.\n` +
+        `Type <span class="p-cwd">help</span>, hit <span class="p-cwd">tab</span>, or just scroll down for the classic view.`,
+    );
+    run('whoami');
+    input.focus({ preventScroll: true });
+  }
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (sessionStorage.getItem('booted') || reducedMotion) {
+    welcome();
+  } else {
+    let skipped = false;
+    const skip = () => { skipped = true; };
+    document.addEventListener('keydown', skip, { once: true });
+    document.addEventListener('pointerdown', skip, { once: true });
+    let i = 0;
+    const next = () => {
+      if (skipped || i >= BOOT_LINES.length) {
+        output.innerHTML = '';
+        sessionStorage.setItem('booted', '1');
+        welcome();
+        return;
+      }
+      const [text, delay] = BOOT_LINES[i++];
+      print(
+        text.startsWith('[  OK  ]')
+          ? `<span class="p-user">[  OK  ]</span>${esc(text.slice(8))}`
+          : esc(text),
+        'boot-line',
+      );
+      setTimeout(next, delay);
+    };
+    next();
+  }
+</script>
