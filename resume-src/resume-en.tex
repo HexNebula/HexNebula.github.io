@@ -1,6 +1,6 @@
 %-------------------------
-% Resume in Latex - ATS friendly version (no photo) - English
-%------------------------
+% Anas MADANI Resume — single source, two outputs (with / without photo)
+%-------------------------
 
 \documentclass[letterpaper,11pt]{article}
 \usepackage{latexsym}
@@ -10,11 +10,29 @@
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
 \usepackage{enumitem}
-\usepackage[pdftex]{hyperref}
 \usepackage{fancyhdr}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{ragged2e}
+\usepackage{tikz}
+\usepackage{tikzfill}
+
+% --- Borderless links + PDF metadata (read by some ATS) ---
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={Resume - Anas MADANI},
+  pdfauthor={Anas MADANI},
+  pdfsubject={Full Stack Software Engineer},
+  pdfkeywords={Java, Spring Boot, Python, FastAPI, Django, React, Docker, Kafka, PostgreSQL, Kubernetes}
+}
+
+% --- Compile flags -------------------------------------------------
+\newif\ifphoto
+\phototrue          % <- with photo   (Morocco)
+%\photofalse        % <- without photo (international / remote / anglophone)
+
+\newif\ifshowstageonea
+\showstageoneatrue  % <- \showstageoneafalse to hide the first internship
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -22,7 +40,7 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% Adjust margins
+% --- Margins ---------------------------------------------------------
 \addtolength{\oddsidemargin}{-0.375in}
 \addtolength{\evensidemargin}{-0.375in}
 \addtolength{\textwidth}{1in}
@@ -35,13 +53,12 @@
 \raggedright
 \setlength{\tabcolsep}{0in}
 
-% Sections formatting
+% --- Section titles ---------------------------------------------------
 \titleformat{\section}{
   \vspace{-4pt}\scshape\raggedright\large
 }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
-%-------------------------
-% Custom commands
+% --- Custom commands ---------------------------------------------------
 \newcommand{\resumeItem}[2]{
   \item\small{
     \textbf{#1}{: #2 \vspace{-2pt}}
@@ -65,24 +82,48 @@
 \newcommand{\resumeItemListStart}{\begin{itemize}}
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
 
+% --- Header content, defined once -----------------------------------
+\newcommand{\cvname}{Anas MADANI}
+\newcommand{\cvtitle}{Full Stack Software Engineer}
+\newcommand{\cvcontact}{
+  \href{mailto:anasmadani49@gmail.com}{anasmadani49@gmail.com}
+  \quad | \quad
+  \href{tel:+212666322450}{+212 6 66 32 24 50}
+  \quad | \quad
+  Casablanca, Morocco \\[4pt]
+  \href{https://www.linkedin.com/in/anas-madani-3b8937246/}{linkedin.com/in/anas-madani}
+  \quad | \quad
+  \href{https://github.com/HexNebula}{github.com/HexNebula}
+}
+
 %-------------------------------------------
 \begin{document}
 
-%----------HEADER (no photo, single column)-----------------
-\begin{center}
-  \textbf{\Large Anas MADANI} \\[2pt]
-  \textit{Full Stack Software Engineer} \\[6pt]
-  \href{mailto:anasmadani49@gmail.com}{anasmadani49@gmail.com} \quad | \quad
-  \href{tel:+212666322450}{+212 6 66 32 24 50} \quad | \quad
-  Casablanca, Morocco\\[4pt]
-  \href{https://www.linkedin.com/in/anas-madani-3b8937246/}{linkedin.com/in/anas-madani} \quad | \quad
-  \href{https://github.com/HexNebula}{github.com/HexNebula}
-\end{center}
-\vspace{4pt}
+% --- Header -----------------------------------------------------
+\ifphoto
+  \begin{minipage}[c]{0.75\textwidth}
+    \textbf{\Large \cvname} \\[2pt]
+    \textit{\cvtitle} \\[6pt]
+    \cvcontact
+  \end{minipage}
+  \hfill
+  \begin{minipage}[c]{0.20\textwidth}
+    \raggedleft
+    \tikz\path[fill overzoom image={CV_light}]circle[radius=1.5cm];
+  \end{minipage}
+  \vspace{6pt}
+\else
+  \begin{center}
+    \textbf{\Large \cvname} \\[2pt]
+    \textit{\cvtitle} \\[6pt]
+    \cvcontact
+  \end{center}
+  \vspace{4pt}
+\fi
 
 \section{Profile}
 \small{
-Full-stack software engineer (ENSIAS) specialized in microservices architectures and DevOps practices (Docker, Kafka, CI/CD). Hands-on experience in banking and industrial environments, from design through infrastructure industrialization, with a strong focus on code quality.
+Software engineer graduated from ENSIAS (Software Engineering), full stack from backend to frontend, with a DevOps practice of deploying on Linux: continuous integration and delivery, containerization and orchestration. Experience in demanding environments (banking, datacenter), used to delivering tested, reviewed and documented code within an agile team.
 }
 
 %-----------EDUCATION-----------------
@@ -104,29 +145,51 @@ Full-stack software engineer (ENSIAS) specialized in microservices architectures
   {Banque Centrale Populaire (BCP)}{Casablanca, Morocco}
   {Software Engineer Intern (Graduation Project)}{February 2025 -- July 2025}
   \resumeItemListStart
-    \item \small{\justifying{Designed and developed a microservices architecture for a banking recommendation platform, with a Java/Spring Boot backend and a React/TypeScript frontend.}}
-    \item \small{\justifying{Industrialized the infrastructure (Docker, Kafka, Redis, Keycloak) within a team in an Agile/Scrum environment.}}
-    \item \small{\justifying{\textit{Stack:} Java, Spring Boot/Cloud, React, TypeScript, Python, FastAPI, PostgreSQL, Redis, Kafka, Keycloak, Docker, Git}}
+    \item Independently designed and delivered a banking product recommendation platform:
+      8 Spring Boot microservices, a FastAPI recommendation API and a React/TypeScript
+      frontend, deployed internally and presented to business teams.
+    \item Built the recommendation engine end-to-end: prepared 17,000 customer-product
+      pairs, customer segmentation via K-Means, benchmarked 4 classification algorithms
+      against a graph-based collaborative filtering approach (Neo4j GDS), with a
+      Precision@K / Recall@K / NDCG@K evaluation framework.
+    \item Industrialized the platform: Docker containerization, event-driven communication
+      with Kafka, Redis caching, Keycloak authentication with centralized JWT validation
+      at the API Gateway level.
+    \item \textit{Stack:} Java, Spring Boot/Cloud, React, TypeScript, Python, FastAPI, Neo4j,
+      PostgreSQL, Redis, Kafka, Keycloak, Docker, Git
   \resumeItemListEnd
 
 \resumeSubheading
   {N+ONE DATACENTERS}{Casablanca, Morocco}
   {Software Engineer Intern}{August 2024 -- September 2024}
   \resumeItemListStart
-    \item \small{\justifying{Developed a full-stack platform (Django / React) containerized with Docker Compose (backend, frontend, Nginx reverse proxy, PostgreSQL).}}
-    \item \small{\justifying{Set up a CI/CD pipeline (GitHub Actions) and an asynchronous monitoring module (scheduler).}}
-    \item \small{\justifying{Implemented cryptographic document security via AES-256-GCM encryption.}}
-    \item \small{\justifying{\textit{Stack:} Python, Django REST Framework, React, Vite, PostgreSQL, Docker, Nginx, GitHub Actions, AES-GCM}}
+    \item Built a tender/RFP management platform (Django REST Framework / React), covering
+      the full consultation lifecycle, candidate submissions and a public portal for
+      external companies.
+    \item Implemented security mechanisms: AES-256-GCM encryption for sensitive documents,
+      role-based access control, JWT authentication with token rotation, operation audit
+      logging and rate limiting on public endpoints.
+    \item Containerized the stack with Docker Compose (Django, PostgreSQL, React, Nginx
+      reverse proxy), set up a GitHub Actions CI pipeline (flake8, pytest against
+      PostgreSQL) and a scheduled deadline-monitoring service.
+    \item \textit{Stack:} Python, Django REST Framework, React, Vite, PostgreSQL, Docker,
+      Nginx, GitHub Actions, JWT, AES-GCM, pytest
   \resumeItemListEnd
 
+\ifshowstageonea
 \resumeSubheading
   {Commune Er-rich}{Er-rich, Morocco}
   {Software Engineer Intern}{July 2023 -- August 2023}
   \resumeItemListStart
-    \item \small{\justifying{Independently implemented a worker management application to digitalize the municipality's administrative processes.}}
-    \item \small{\justifying{Led the transition from paper-based systems to a centralized digital solution.}}
-    \item \small{\justifying{\textit{Stack:} Java, Spring Boot, React, Tailwind CSS, PostgreSQL, Git}}
+    \item Independently built a Java/JavaFX desktop application for managing the
+      municipality's workforce: profile management, absence tracking and automated
+      payroll calculation.
+    \item Designed the relational database (MySQL/MariaDB): data dictionary, functional
+      dependencies and conceptual model, based on requirements gathered from the
+      relevant department.
+    \item \textit{Stack:} Java, JavaFX, MySQL/MariaDB, phpMyAdmin, NetBeans, UML, Git
   \resumeItemListEnd
+\fi
 
 \resumeSubHeadingListEnd
 
@@ -134,31 +197,31 @@ Full-stack software engineer (ENSIAS) specialized in microservices architectures
 \section{Projects}
   \resumeSubHeadingListStart
     \resumeSubItem{BusConnect}
-      {Bus reservation platform built on a microservices architecture with Spring Boot 3, Spring Cloud (Eureka, API Gateway), React 18, and Kubernetes deployment. Integrates PostgreSQL, MySQL, and MongoDB depending on the service.\newline
+      {Bus reservation platform on a microservices architecture with Spring Boot 3, Spring Cloud (Eureka, API Gateway), React 18 and Kubernetes deployment. Integrates PostgreSQL, MySQL and MongoDB depending on the service.
       \href{https://github.com/HexNebula/BusManagementV2}{\underline{GitHub}}}
       \vspace{2pt}
     \resumeSubItem{MLOps Pipeline Generator}
-      {MLOps code generator based on Model-Driven Engineering (MDE) using Eclipse Ecore and Acceleo. Automatically generates Python scripts, Dockerfiles, and Kubernetes configurations from metamodels via an SWT/EMF Forms interface.
+      {MLOps code generator based on Model-Driven Engineering (MDE) using Eclipse Ecore and Acceleo. Automatically generates Python scripts, Dockerfiles and Kubernetes configurations from metamodels via an SWT/EMF Forms interface.
       \href{https://github.com/HexNebula/MLOps-Pipeline-Code-Generator}{\underline{GitHub}}}
       \vspace{2pt}
     \resumeSubItem{BacSurveillance}
-      {Exam supervision management platform using a greedy + backtracking algorithm for automatic teacher assignment. FastAPI/PostgreSQL backend, React 19 (TypeScript) frontend, Word/Excel export, and bilingual Arabic/French interface.
+      {Exam supervision management platform using a greedy + backtracking algorithm for automatic teacher assignment. FastAPI/PostgreSQL backend, React 19 (TypeScript) frontend, Word/Excel export and bilingual Arabic/French interface.
       \href{https://github.com/HexNebula/BacSurveillance}{\underline{GitHub}}}
       \vspace{2pt}
     \resumeSubItem{FitHub}
-      {Full-stack gym management application built on a microservices architecture with CI/CD pipelines via GitHub Actions.
+      {Full-stack gym management application on a microservices architecture with CI/CD pipelines via GitHub Actions.
       \href{https://github.com/HexNebula/fitnesshub-backend}{\underline{GitHub}}}
   \resumeSubHeadingListEnd
 
 %-----------SKILLS-----------------
-\section{Technical Skills}
+\section{Skills}
   \resumeSubHeadingListStart
     \item{
+      \textbf{Languages}{: Java, Python, TypeScript, JavaScript, C, C++, SQL} \\
       \textbf{Backend}{: Spring Boot, Spring Cloud, FastAPI, Django REST Framework} \\
       \textbf{Frontend}{: React, TypeScript, Tailwind CSS, Vite} \\
-      \textbf{DevOps \& Infra}{: Docker, Kafka, GitHub Actions, Nginx, Linux, Kubernetes} \\
-      \textbf{Databases}{: PostgreSQL, MongoDB, MySQL, Redis} \\
-      \textbf{Languages (Programming)}{: C, C++, Python, Java, JavaScript, SQL} \\
+      \textbf{Databases}{: PostgreSQL, MySQL, MongoDB, Neo4j, Redis} \\
+      \textbf{DevOps \& Infra}{: Docker, Kubernetes, Kafka, GitHub Actions, Nginx, Keycloak, Linux} \\
       \textbf{Spoken Languages}{: Arabic (native), French (fluent), English (fluent)}
     }
   \resumeSubHeadingListEnd
