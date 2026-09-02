@@ -109,7 +109,7 @@
   \hfill
   \begin{minipage}[c]{0.20\textwidth}
     \raggedleft
-    \tikz\path[fill overzoom image={CV_light}]circle[radius=1.5cm];
+    \tikz\path[fill overzoom image={CV_light_print}]circle[radius=1.5cm];
   \end{minipage}
   \vspace{6pt}
 \else
@@ -123,7 +123,7 @@
 
 \section{Profil}
 \small{
-Ingénieur logiciel diplômé de l'ENSIAS (Génie Logiciel), full stack du backend au frontend, avec une pratique DevOps du déploiement en environnement Linux : intégration et livraison continues, conteneurisation et orchestration. Expérience en environnements exigeants (banque, datacenter), habitué à livrer en équipe agile un code testé, revu et documenté.
+Ingénieur logiciel diplômé de l'ENSIAS (Génie Logiciel), full stack du backend au frontend, avec une pratique DevOps du déploiement en environnement Linux : intégration et livraison continues (CI/CD), conteneurisation et orchestration. Expérience en environnements exigeants (banque, datacenter), habitué à livrer en équipe agile un code testé, revu et documenté.
 }
 
 %-----------FORMATION-----------------
@@ -181,13 +181,15 @@ Ingénieur logiciel diplômé de l'ENSIAS (Génie Logiciel), full stack du backe
   {Commune Er-rich}{Er-rich, Maroc}
   {Stagiaire Ingénieur Logiciel}{Juillet 2023 -- Août 2023}
   \resumeItemListStart
-    \item Développement en autonomie d'une application de bureau Java/JavaFX pour la gestion du
-      personnel ouvrier de la commune : gestion des profils, suivi des absences et calcul
-      automatisé des salaires.
-    \item Conception de la base de données relationnelle (MySQL/MariaDB) : dictionnaire de
-      données, dépendances fonctionnelles et modèle conceptuel, à partir du recueil des
-      besoins auprès du service concerné.
-    \item \textit{Stack :} Java, JavaFX, MySQL/MariaDB, phpMyAdmin, NetBeans, UML, Git
+    \item Développement d'une application de gestion du personnel ouvrier de la commune :
+      profils des agents, suivi des absences et calcul automatisé des salaires, en
+      remplacement de procédures tenues jusque-là sur papier. Seul développeur du projet.
+    \item Développement full stack : services backend Spring Boot, interfaces React et
+      Tailwind CSS, persistance PostgreSQL.
+    \item Conception de la base de données relationnelle : dictionnaire de données,
+      dépendances fonctionnelles et modèle conceptuel, à partir du recueil des besoins
+      auprès du service concerné.
+    \item \textit{Stack :} Java, Spring Boot, React, Tailwind CSS, PostgreSQL, UML, Git
   \resumeItemListEnd
 \fi
 
@@ -196,22 +198,23 @@ Ingénieur logiciel diplômé de l'ENSIAS (Génie Logiciel), full stack du backe
 %-----------PROJETS-----------------
 \section{Projets}
   \resumeSubHeadingListStart
-    \resumeSubItem{Practice Debt}
-      {Outil de suivi d'entraînement Codeforces : identifie les problèmes abandonnés en cours de concours et les techniques non pratiquées depuis longtemps, classés dans une file unique. Rétro-ingénierie des formules de score et de classement Elo de Codeforces, validées contre plus de 20 000 variations de classement réelles. Backend Spring Boot 3 / PostgreSQL, frontend React 19 (TypeScript), déploiement en conteneur unique, 91 tests.
+    \resumeSubItem{Practice Debt \normalfont\textit{(Août -- Sept. 2026)}}
+      {Outil de suivi d'entraînement Codeforces : identifie les problèmes abandonnés en cours de concours et les techniques non pratiquées depuis longtemps, classés dans une file unique. Rétro-ingénierie des formules de score et de classement Elo de Codeforces, erreur du modèle quantifiée contre 20 489 variations de classement réelles, coûts dérivés en différences modèle-contre-modèle pour annuler le biais résiduel. Backend Spring Boot 3 / PostgreSQL, frontend React 19 (TypeScript), déploiement en conteneur unique, 91 tests.
       \href{https://github.com/HexNebula/practice-debt}{\underline{GitHub}}}
       \vspace{2pt}
-    \resumeSubItem{BusConnect}
+    \resumeSubItem{BacSurv \normalfont\textit{(Août 2026)}}
+      {Planification de la surveillance des examens du baccalauréat marocain : affectation des enseignants aux séances sous contraintes de disponibilité, de charge et de conflits. Troisième version d'un problème abordé pour la première fois en 2025 -- un prototype TypeScript, puis une réécriture FastAPI, aujourd'hui Java/Spring Boot avec solveur de contraintes. Frontend React 19 (TypeScript), export Word/Excel et interface bilingue arabe/français.
+      \href{https://github.com/HexNebula/BacSurv}{\underline{GitHub}}}
+  
+      \vspace{2pt}
+    \resumeSubItem{BusConnect \normalfont\textit{(Oct. 2024 -- Janv. 2025)}}
       {Plateforme de réservation de bus en architecture microservices avec Spring Boot 3, Spring Cloud (Eureka, API Gateway), React 18 et déploiement Kubernetes. Intègre PostgreSQL, MySQL et MongoDB selon les services.
       \href{https://github.com/HexNebula/BusManagementV2}{\underline{GitHub}}}
       \vspace{2pt}
-    \resumeSubItem{MLOps Pipeline Generator}
+    \resumeSubItem{MLOps Pipeline Generator \normalfont\textit{(Oct. 2024 -- Janv. 2025)}}
       {Générateur de code MLOps basé sur l'ingénierie dirigée par les modèles (MDE) avec Eclipse Ecore et Acceleo. Génère automatiquement des scripts Python, Dockerfiles et configurations Kubernetes à partir de métamodèles via une interface SWT/EMF Forms.
       \href{https://github.com/HexNebula/MLOps-Pipeline-Code-Generator}{\underline{GitHub}}}
-      \vspace{2pt}
-    \resumeSubItem{BacSurveillance}
-      {Plateforme de gestion de surveillance d'examens avec algorithme greedy + backtracking pour l'affectation automatique des enseignants. Backend FastAPI/PostgreSQL, frontend React 19 (TypeScript), export Word/Excel et interface bilingue Arabe/Français.
-      \href{https://github.com/HexNebula/BacSurveillance}{\underline{GitHub}}}
-  \resumeSubHeadingListEnd
+\resumeSubHeadingListEnd
 
 %-----------COMPETENCES-----------------
 \section{Compétences}

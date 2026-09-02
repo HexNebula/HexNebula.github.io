@@ -28,8 +28,8 @@
 
 % --- Compile flags -------------------------------------------------
 \newif\ifphoto
-\phototrue          % <- with photo   (Morocco)
-%\photofalse        % <- without photo (international / remote / anglophone)
+%\phototrue         % <- with photo   (Morocco)
+\photofalse         % <- without photo (international / remote / anglophone)
 
 \newif\ifshowstageonea
 \showstageoneatrue  % <- \showstageoneafalse to hide the first internship
@@ -109,7 +109,7 @@
   \hfill
   \begin{minipage}[c]{0.20\textwidth}
     \raggedleft
-    \tikz\path[fill overzoom image={CV_light}]circle[radius=1.5cm];
+    \tikz\path[fill overzoom image={CV_light_print}]circle[radius=1.5cm];
   \end{minipage}
   \vspace{6pt}
 \else
@@ -123,7 +123,7 @@
 
 \section{Profile}
 \small{
-Software engineer graduated from ENSIAS (Software Engineering), full stack from backend to frontend, with a DevOps practice of deploying on Linux: continuous integration and delivery, containerization and orchestration. Experience in demanding environments (banking, datacenter), used to delivering tested, reviewed and documented code within an agile team.
+Software engineer graduated from ENSIAS (Software Engineering), full stack from backend to frontend, with a DevOps practice of deploying on Linux: continuous integration and delivery (CI/CD), containerization and orchestration. Experience in demanding environments (banking, datacenter), used to delivering tested, reviewed and documented code within an agile team.
 }
 
 %-----------EDUCATION-----------------
@@ -181,13 +181,14 @@ Software engineer graduated from ENSIAS (Software Engineering), full stack from 
   {Commune Er-rich}{Er-rich, Morocco}
   {Software Engineer Intern}{July 2023 -- August 2023}
   \resumeItemListStart
-    \item Independently built a Java/JavaFX desktop application for managing the
-      municipality's workforce: profile management, absence tracking and automated
-      payroll calculation.
-    \item Designed the relational database (MySQL/MariaDB): data dictionary, functional
-      dependencies and conceptual model, based on requirements gathered from the
-      relevant department.
-    \item \textit{Stack:} Java, JavaFX, MySQL/MariaDB, phpMyAdmin, NetBeans, UML, Git
+    \item Built a workforce management application for the municipality: staff profiles,
+      absence tracking and automated payroll calculation, replacing procedures previously
+      kept on paper. Sole developer on the project.
+    \item Full stack delivery: Spring Boot backend services, React and Tailwind CSS
+      interfaces, PostgreSQL persistence.
+    \item Designed the relational database: data dictionary, functional dependencies and
+      conceptual model, based on requirements gathered from the relevant department.
+    \item \textit{Stack:} Java, Spring Boot, React, Tailwind CSS, PostgreSQL, UML, Git
   \resumeItemListEnd
 \fi
 
@@ -196,22 +197,23 @@ Software engineer graduated from ENSIAS (Software Engineering), full stack from 
 %-----------PROJECTS-----------------
 \section{Projects}
   \resumeSubHeadingListStart
-    \resumeSubItem{Practice Debt}
-      {Codeforces practice tracker that surfaces problems abandoned mid-contest and techniques gone stale, ranked in a single queue. Reverse-engineered the contest scoring and Elo-style rating formulas and validated them against 20,000+ real rating changes. Spring Boot 3 / PostgreSQL backend, React 19 (TypeScript) frontend, single-container deployment, 91 tests.
+    \resumeSubItem{Practice Debt \normalfont\textit{(Aug -- Sep 2026)}}
+      {Codeforces practice tracker that surfaces problems abandoned mid-contest and techniques gone stale, ranked in a single queue. Reverse-engineered the contest scoring and Elo-style rating formulas, quantified the model's error against 20,489 real rating deltas, and derived costs as model-vs-model differences so the residual bias cancels. Spring Boot 3 / PostgreSQL backend, React 19 (TypeScript) frontend, single-container deployment, 91 tests.
       \href{https://github.com/HexNebula/practice-debt}{\underline{GitHub}}}
       \vspace{2pt}
-    \resumeSubItem{BusConnect}
+    \resumeSubItem{BacSurv \normalfont\textit{(Aug 2026)}}
+      {Exam supervision planning for the Moroccan baccalaureate: assigns teachers to sessions under availability, workload and conflict constraints. Third build of a problem first attempted in 2025 -- a TypeScript prototype, then a FastAPI rewrite, now Java/Spring Boot with a constraint solver. React 19 (TypeScript) frontend, Word/Excel export and a bilingual Arabic/French interface.
+      \href{https://github.com/HexNebula/BacSurv}{\underline{GitHub}}}
+  
+      \vspace{2pt}
+    \resumeSubItem{BusConnect \normalfont\textit{(Oct 2024 -- Jan 2025)}}
       {Bus reservation platform on a microservices architecture with Spring Boot 3, Spring Cloud (Eureka, API Gateway), React 18 and Kubernetes deployment. Integrates PostgreSQL, MySQL and MongoDB depending on the service.
       \href{https://github.com/HexNebula/BusManagementV2}{\underline{GitHub}}}
       \vspace{2pt}
-    \resumeSubItem{MLOps Pipeline Generator}
+    \resumeSubItem{MLOps Pipeline Generator \normalfont\textit{(Oct 2024 -- Jan 2025)}}
       {MLOps code generator based on Model-Driven Engineering (MDE) using Eclipse Ecore and Acceleo. Automatically generates Python scripts, Dockerfiles and Kubernetes configurations from metamodels via an SWT/EMF Forms interface.
       \href{https://github.com/HexNebula/MLOps-Pipeline-Code-Generator}{\underline{GitHub}}}
-      \vspace{2pt}
-    \resumeSubItem{BacSurveillance}
-      {Exam supervision management platform using a greedy + backtracking algorithm for automatic teacher assignment. FastAPI/PostgreSQL backend, React 19 (TypeScript) frontend, Word/Excel export and bilingual Arabic/French interface.
-      \href{https://github.com/HexNebula/BacSurveillance}{\underline{GitHub}}}
-  \resumeSubHeadingListEnd
+\resumeSubHeadingListEnd
 
 %-----------SKILLS-----------------
 \section{Skills}
