@@ -97,6 +97,14 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: 'practice-debt',
+    name: 'Practice Debt',
+    description:
+      'Codeforces practice tracker — surfaces problems abandoned mid-contest and techniques gone stale, ranked in one queue. Reverse-engineered the contest scoring and Elo-style rating formulas and validated them against 20,000+ real rating changes. Single-container deploy, 91 tests.',
+    stack: ['Spring Boot 3', 'PostgreSQL', 'React 19', 'TypeScript', 'Docker'],
+    repo: 'https://github.com/HexNebula/practice-debt',
+  },
+  {
     slug: 'busconnect',
     name: 'BusConnect',
     description:
